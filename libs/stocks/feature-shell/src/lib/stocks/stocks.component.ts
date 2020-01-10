@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
 import { PriceQueryFacade } from '@coding-challenge/stocks/data-access-price-query';
 
 @Component({
@@ -11,6 +12,9 @@ export class StocksComponent implements OnInit {
   stockPickerForm: FormGroup;
   symbol: string;
   period: string;
+  currentDay = new Date();
+  selectedVal: string;
+  selectedSymbol$ = this.priceQuery.selectedSymbol$;
 
   quotes$ = this.priceQuery.priceQueries$;
 
@@ -28,7 +32,10 @@ export class StocksComponent implements OnInit {
   constructor(private fb: FormBuilder, private priceQuery: PriceQueryFacade) {
     this.stockPickerForm = fb.group({
       symbol: [null, Validators.required],
-      period: [null, Validators.required]
+      period: [null, Validators.required],
+      refreshInterval: '',
+      fromDate: new Date(),
+      toDate: new Date()
     });
   }
 
@@ -37,7 +44,28 @@ export class StocksComponent implements OnInit {
   fetchQuote() {
     if (this.stockPickerForm.valid) {
       const { symbol, period } = this.stockPickerForm.value;
-      this.priceQuery.fetchQuote(symbol, period);
+      if (symbol && period) {
+        this.priceQuery.fetchQuote(symbol, period);
+      }
     }
   }
+
+  selectTimePeriod(timePeriod) {
+    this.selectedVal = timePeriod.value;
+    this.stockPickerForm.patchValue({ period: this.selectedVal, fromDate: null, toDate: null });
+    this.fetchQuote();
+  }
+
+  triggerDateChange () {
+      const { fromDate, toDate } = this.stockPickerForm.value;
+      const symbol = this.stockPickerForm.get('symbol').value;
+      if (fromDate && toDate) {
+        if (symbol && fromDate.getTime() <= toDate.getTime()) {
+          let period = this.timePeriods[0].value;
+          this.selectedVal = '';
+          this.priceQuery.fetchQuote(symbol, period, fromDate, toDate);
+        }
+      }
+  }
+
 }

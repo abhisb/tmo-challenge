@@ -17,19 +17,32 @@
     </mat-error>
   </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Favorite time period</mat-label>
-    <mat-select formControlName="period">
-      <mat-option
-        *ngFor="let timePeriod of timePeriods"
-        [value]="timePeriod.value"
-      >
-        {{ timePeriod.viewValue }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+  <div>
+    <div class="date-range-filter">
+      <mat-form-field>
+        <mat-label>From</mat-label>
+        <input matInput [matDatepicker]="fromDatePicker" placeholder="From Date" [max]="stockPickerForm.get('toDate').value" formControlName="fromDate">
+        <mat-datepicker-toggle matSuffix [for]="fromDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #fromDatePicker></mat-datepicker>
+      </mat-form-field>
 
-  <button (click)="fetchQuote()" mat-raised-button>Go</button>
+      <mat-form-field>
+        <mat-label>To</mat-label>
+        <input matInput [matDatepicker]="toDatePicker" placeholder="To Date" formControlName="toDate" [min]="stockPickerForm.get('fromDate').value" [max]="currentDay">
+        <mat-datepicker-toggle matSuffix [for]="toDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #toDatePicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <button
+      mat-button
+      (click)="selectTimePeriod(timePeriod)"
+      *ngFor="let timePeriod of timePeriods"
+      [ngClass]="{'selected' : selectedVal === timePeriod.value}">
+      {{timePeriod.viewValue}}
+    </button>
+  </div>
+
 </form>
 
-<coding-challenge-chart [data$]="quotes$"></coding-challenge-chart>
+<coding-challenge-chart [data$]="quotes$" [symbol]="selectedSymbol$ | async"></coding-challenge-chart>

@@ -5,6 +5,7 @@ import {
   Input,
   OnInit
 } from '@angular/core';
+
 import { Observable } from 'rxjs';
 
 @Component({
@@ -14,7 +15,7 @@ import { Observable } from 'rxjs';
 })
 export class ChartComponent implements OnInit {
   @Input() data$: Observable<any>;
-  chartData: any;
+  @Input() symbol: string;
 
   chart: {
     title: string;
@@ -34,6 +35,9 @@ export class ChartComponent implements OnInit {
       options: { title: `Stock price`, width: '600', height: '400' }
     };
 
-    this.data$.subscribe(newData => (this.chartData = newData));
+    this.data$.subscribe(newData => {
+      this.chart.data = newData;
+      this.chart.options.title = `${this.symbol.toUpperCase()} Stock price`;
+    });
   }
 }
