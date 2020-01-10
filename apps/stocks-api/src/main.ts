@@ -2,12 +2,21 @@
  * This is not a production server yet!
  * This is only a minimal backend to get started.
  **/
+
 import { Server } from 'hapi';
+
+const Wreck = require('@hapi/wreck');
 
 const init = async () => {
   const server = new Server({
     port: 3333,
-    host: 'localhost'
+    host: 'localhost',
+    cache: [{
+      engine: require('catbox-redis'),
+      name: 'redis-cache',
+      host: '127.0.0.1',
+      port: 3333
+    }]
   });
 
   server.route({
